@@ -261,7 +261,6 @@
   # Sets/gets a session variable for this instance
   
   sess: (k, v) ->
-    console.log('setting session', k)
     return  if !Session?
     k = "#{@id}.#{k}"
     if arguments.length is 2
