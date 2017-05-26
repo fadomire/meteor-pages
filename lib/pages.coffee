@@ -63,13 +63,15 @@
       n = sub.get "nPublishedPages"
       return n  if n?
 
-      n = Math.ceil @Collection.find(
+      c = @Collection.find(
         $and: [
           sub.get("filters"),
           sub.get("realFilters") or {}
         ]
-      ).count() / (sub.get "perPage")
-      n or 1
+      ).count()
+
+      n = Math.ceil c / (sub.get "perPage")
+      {pages: n, total: c} or {pages: 1}
     
     "Set": (k, v, sub) ->
       if !@settings[k]?
@@ -259,6 +261,7 @@
   # Sets/gets a session variable for this instance
   
   sess: (k, v) ->
+    console.log('setting session', k)
     return  if !Session?
     k = "#{@id}.#{k}"
     if arguments.length is 2
@@ -536,7 +539,8 @@
     else
       @call "CountPages", (e, r) =>
         throw e  if e?
-        @setTotalPages r
+        @setTotalPages r.pages
+        @sess "totalRecords", r.total
         now = @now()
         if @nextPageCount < now
           @nextPageCount = now + @pageCountFrequency
